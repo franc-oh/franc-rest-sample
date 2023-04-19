@@ -104,7 +104,7 @@ public class MbspV2Controller {
         return EntityModel.of(
                 new ResponseEntity<>(response, HttpStatus.OK),
                 linkTo(methodOn(MbspV2Controller.class).getMbsp(mbspId, acntId)).withSelfRel(),
-                linkTo(methodOn(MbspV2Controller.class).getMbsps(acntId, null, null)).withRel("mbsps")
+                linkTo(methodOn(MbspV2Controller.class).getMbsps(acntId, Code.DEFAULT_PAGE_NO, Code.DEFAULT_PAGE_LIMIT)).withRel("mbsps")
                 );
     }
 
