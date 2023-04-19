@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.franc.sample.mapper.MbspMapper">
+
+    <select id="findById" parameterType="String" resultType="MbspVO">
+        /** MbspMapper.findById */
+        SELECT A.*
+        FROM TB_MBSP A
+        WHERE A.MBSP_ID = #{mbspId}
+    </select>
+
+
+    <sql id="fromFindMbspAndMyMbsp">
+        FROM TB_MBSP A
+        LEFT OUTER JOIN TB_MY_MBSP B
+        ON B.MBSP_ID = A.MBSP_ID
+        AND B.ACNT_ID = #{acntId}
+        AND B.STATUS = '1'
+    </sql>
+
+
+    <select id="findAllAndMyMbspYn" parameterType="java.util.Map" resultType="MbspAndMyMbspVo">
+        /** MbspMapper.findAllAndMyMbspYn */
+        SELECT A.*
+              ,DECODE(B.ACNT_ID, NULL, 'N', 'Y') AS MY_MBSP_YN
+        <include refid="fromFindMbspAndMyMbsp" />
+        WHERE 1=1
+            AND A.STATUS = '1'
+        ORDER BY A.MBSP_ID
+        LIMIT NVL(#{offset}, 0), NVL(#{limit}, 20)
+    </select>
+
+
+
+    <resultMap id="MbspAndMyMbspMap" type="MbspAndMyMbspVo">
+        <id property="mbspId" column="MBSP_ID" />
+        <result property="mbspNm" column="MBSP_NM"/>
+        <result property="status" column="STATUS" />
+        <result property="mbspInfo" column="MBSP_INFO" />
+        <result property="mbspImgUrl" column="MBSP_IMG_URL" />
+        <result property="homepageUrl" column="HOMEPAGE_URL" />
+        <result property="bigo" column="BIGO" />
+        <association property="myMbspInfo" javaType="MyMbspVo" >
+            <id property="acntId" column="ACNT_ID" />
+            <id property="mbspId" column="MY_MBSP_ID" />
+            <result property="status" column="MY_STATUS" />
+            <result property="totalAccumPoint" column="TOTAL_ACCUM_POINT" />
+            <result property="mbspGrdCd" column="MBSP_GRD_CD" />
+            <result property="withdrawalDate" column="WITHDRAWAL_DATE" />
+        </association>
+    </resultMap>
+
+    <select id="findByIdAndMyMbspInfo" parameterType="java.util.Map" resultMap="MbspAndMyMbspMap">
+        /** MbspMapper.findByIdAndMyMbspInfo */
+        SELECT A.*
+             , B.*
+             , B.STATUS AS MY_STATUS
+             , B.MBSP_ID AS MY_MBSP_ID
+        <include refid="fromFindMbspAndMyMbsp" />
+        WHERE 1=1
+        AND A.MBSP_ID = #{mbspId}
+        AND A.STATUS = '1'
+    </select>
+
+</mapper>
